@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Focus Planner</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+  <div id="app">
+    <div id="planner" style="display:none" class="card">
+      <div class="header">
+        <span id="user-email"></span>
+        <button onclick="logout()">Logout</button>
+        <button onclick="toggleTheme()">🌓</button>
+      </div>
+
+      <div class="task-entry">
+        <input id="task-input" type="text" placeholder="Task..." />
+        <select id="importance">
+          <option value="high">High</option>
+          <option value="medium">Medium</option>
+          <option value="low">Low</option>
+        </select>
+        <button onclick="addTask()">Add Task</button>
+      </div>
+
+      <ul id="task-list" class="task-list"></ul>
+
+      <div class="pomodoro">
+        <h2>Pomodoro Timer</h2>
+        <div class="time-inputs">
+          <label>Work (min)</label>
+          <input type="number" id="work-time" value="25" min="25" max="60" />
+          <label>Rest (min)</label>
+          <input type="number" id="rest-time" value="5" min="5" max="20" />
+        </div>
+        <div class="timer-controls">
+          <button onclick="startPomodoro()">Start</button>
+          <button onclick="stopPomodoro()">Stop</button>
+        </div>
+        <div id="timer-display"></div>
+        <div id="stats">
+          <h3>Weekly Pomodoros</h3>
+          <p>Completed: <span id="pomodoro-count">0</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBHTlrAetOq7ECMZLrwsu9nb7SlKglEvoo",
+      authDomain: "focuspocus-adhd.firebaseapp.com",
+      projectId: "focuspocus-adhd",
+      appId: "1:131592796704:web:4ccb45a0e2a3fb0bafda45"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    firebase.auth().onAuthStateChanged((user) => {
+      if (user) {
+        document.getElementById("user-email").textContent = user.email;
+        document.getElementById("planner").style.display = "block";
+      } else {
+        window.location.href = "login.html";
+      }
+    });
+
+    function logout() {
+      firebase.auth().signOut().then(() => {
+        window.location.href = "login.html";
+      });
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
