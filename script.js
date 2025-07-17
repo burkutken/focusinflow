@@ -49,7 +49,9 @@ function login() {
 }
 
 function logout() {
-  auth.signOut();
+  firebase.auth().signOut().then(() => {
+  window.location.href = "login.html";
+  });
 }
 
 // Task Handling
