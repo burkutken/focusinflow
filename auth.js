@@ -38,7 +38,7 @@ function signup() {
   auth.createUserWithEmailAndPassword(email, password)
     .then(() => {
       alert("Sign-up successful! Redirecting to login...");
-      window.location.href = "signin.html";
+      window.location.href = "login.html";
     })
     .catch((error) => {
       alert(error.message);
