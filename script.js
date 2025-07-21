@@ -138,31 +138,42 @@ function loadTasks() {
 
 // Pomodoro
 function startPomodoro() {
-  const workTime = parseInt(document.getElementById("work-time").value);
-  const restTime = parseInt(document.getElementById("rest-time").value);
+  const workTime = parseInt(document.getElementById("work-time").value) * 60;
+  const restTime = parseInt(document.getElementById("rest-time").value) * 60;
 
-  isWorkPhase = true;
-  timeRemaining = workTime * 60;
+  const duration = isWorkPhase ? workTime : restTime;
+  const endTime = Date.now() + duration * 1000;
+
   bip.play();
-  updateTimerDisplay();
 
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    timeRemaining--;
+  if (Notification.permission === "granted") {
+    new Notification(isWorkPhase ? "Work Time Started!" : "Break Time Started!");
+  }
+
+  function tick() {
+    const now = Date.now();
+    const timeLeft = Math.max(0, Math.floor((endTime - now) / 1000));
+    timeRemaining = timeLeft;
     updateTimerDisplay();
 
-    if (timeRemaining <= 0) {
+    if (timeLeft <= 0) {
+      clearInterval(timerInterval);
       isWorkPhase = !isWorkPhase;
-      timeRemaining = (isWorkPhase ? workTime : restTime) * 60;
-      bip.play();
+      if (!isWorkPhase) incrementPomodoroCount();
+      startPomodoro(); // start the next phase
     }
-  }, 1000);
+  }
 
-  if (!isWorkPhase) incrementPomodoroCount();
+  tick(); // immediately update once
+  clearInterval(timerInterval);
+  timerInterval = setInterval(tick, 1000);
 }
 
+
 window.addEventListener("load", () => {
-  updatePomodoroUI();
+  if ("Notification" in window && Notification.permission !== "granted") {
+    Notification.requestPermission();
+  }
 });
 
 
@@ -177,8 +188,9 @@ function updateTimerDisplay() {
   const sec = timeRemaining % 60;
   const label = isWorkPhase ? "Work" : "Rest";
   document.getElementById("timer-display").textContent =
-    `${label}: ${min}:${sec.toString().padStart(2, '0')}`;
+    `${label}: ${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 }
+
 
 function toggleTheme() {
   document.body.classList.toggle("dark");
@@ -193,17 +205,24 @@ window.addEventListener("DOMContentLoaded", () => {
 
 function incrementPomodoroCount() {
   const today = new Date().toISOString().slice(0, 10);
-  let stats = JSON.parse(localStorage.getItem("pomodoroStats") || "{}");
+  const stats = JSON.parse(localStorage.getItem("pomodoroStats") || "{}");
   if (!stats[today]) stats[today] = 0;
   stats[today]++;
+
   localStorage.setItem("pomodoroStats", JSON.stringify(stats));
   updatePomodoroUI();
 }
 
 function updatePomodoroUI() {
   const stats = JSON.parse(localStorage.getItem("pomodoroStats") || "{}");
+  const today = new Date().toISOString().split("T")[0];
+
+  const now = Date.now();
   const last7 = Object.entries(stats)
     .filter(([date]) => new Date(date) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
-  const total = last7.reduce((sum, [, count]) => sum + count, 0);
-  document.getElementById("pomodoro-count").textContent = total;
+  const weeklyTotal = last7.reduce((sum, [, count]) => sum + count, 0);
+  const dailyTotal = stats[today] || 0;
+
+  document.getElementById("weekly-count").textContent = weeklyTotal;
+  document.getElementById("daily-count").textContent = dailyTotal;
 }
