@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Focus Planner</title>
+  <title>focusinflow</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
@@ -43,8 +43,10 @@
         </div>
         <div id="timer-display"></div>
         <div id="stats">
+          <h3>Daily Pomodoros</h3>
+          <p>Completed: <span id="daily-count">0</span></p>
           <h3>Weekly Pomodoros</h3>
-          <p>Completed: <span id="pomodoro-count">0</span></p>
+          <p>Completed: <span id="weekly-count">0</span></p>
         </div>
       </div>
     </div>
